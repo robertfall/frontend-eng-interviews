@@ -1,4 +1,4 @@
-export {};
+export { };
 
 declare global {
   interface Task {
@@ -17,5 +17,14 @@ declare global {
 
   interface TaskUpdate {
     completed: boolean;
+  }
+
+  interface TaskStore {
+    loading: boolean,
+    tasks: Tasks,
+    fetchTasks: Function<void>,
+    createTask: Function<NewTask, void>,
+    markTaskCompleted: Function<string, void>,
+    destroyTask: Function<string, void>
   }
 }

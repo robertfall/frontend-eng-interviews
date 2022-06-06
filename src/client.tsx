@@ -6,23 +6,27 @@ export default function createClient({ userId, baseUrl = BASE_URL } : { userId: 
     const taskPath = (tid: string) => `${tasksPath()}/${tid}`;
 
     return {
-        fetchTasks: async() => {
+        async fetchTasks(): Promise<Tasks> {
             return fetch(tasksPath())
               .then(resp => resp.json());
         },
-        createTask: async(task: Task) => {
+        async createTask(task: Task): Promise<Task> {
             return fetch(tasksPath(), {
               method: "POST",
               body: JSON.stringify(task),
             })
               .then(resp => resp.json())
         },
-        updateTask: async(tid: string, taskUpdate: TaskUpdate) => {
-            return fetch(taskPath(tid), {
+        async updateTask(tid: string, taskUpdate: TaskUpdate): Promise<void> {
+            await fetch(taskPath(tid), {
                 method: "PUT",
                 body: JSON.stringify(taskUpdate),
-            })
-                .then(resp => resp.json())
+            });
+        },
+        async destroyTask(tid: string): Promise<void> {
+            await fetch(taskPath(tid), {
+                method: "DELETE"
+            });
         }
     }
 }

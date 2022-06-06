@@ -1,31 +1,66 @@
-import React, { useState, ChangeEventHandler, FormEventHandler } from "react";
+import React, {
+  useState,
+  ChangeEventHandler,
+  FormEventHandler,
+  useContext,
+  useCallback,
+} from "react";
+import styled from "@emotion/styled";
+import { StoreContext } from "../Store";
 
-const TaskForm = ({ onSubmit }: { onSubmit: Function }) => {
-  const [formDescription, setFormDescription] = useState<string>();
+const Input = styled.input`
+  box-sizing: border-box;
+  height: 30px;
+  font-size: 0.875rem;
+  flex-grow: 1;
+  line-height: 1.5rem;
+  margin-right: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0 8px;
+`;
 
-  const handleFormDescriptionChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setFormDescription(event.target.value);
+const Submit = styled.input`
+  font-size: 1rem;
+  background-color: #f08080;
+  border:none;
+  padding: 0 12px;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+`;
+
+const Form = styled.form`
+  display: flex;
+  width: 100%;
+`;
+
+const TaskForm = () => {
+  const [formDescription, setFormDescription] = useState<string>("");
+  const { createTask } = useContext(StoreContext) as TaskStore;
+
+  const handleFormDescriptionChange: ChangeEventHandler<HTMLInputElement> =
+    useCallback(event => {
+      setFormDescription(event.target.value);
+    }, []);
+
+  const handleSubmit: FormEventHandler<HTMLFormElement> = event => {
+    event.preventDefault();
+    createTask({ description: formDescription });
+    setFormDescription("");
   };
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {
-      event.preventDefault();
-      onSubmit({
-          description: formDescription
-      });
-      setFormDescription('');
-  }
-
   return (
-    <form onSubmit={handleSubmit}>
-      <input
+    <Form onSubmit={handleSubmit}>
+      <Input
         type="text"
         name="description"
         placeholder="Todo Description"
         value={formDescription}
         onChange={handleFormDescriptionChange}
       />
-      <input type="submit" value="Add" />
-    </form>
+      <Submit type="submit" value="Add" />
+    </Form>
   );
 };
 
