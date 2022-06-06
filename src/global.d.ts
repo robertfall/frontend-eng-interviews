@@ -14,4 +14,8 @@ declare global {
     description: string;
     completed: boolean;
   }
+
+  interface TaskUpdate {
+    completed: boolean;
+  }
 }

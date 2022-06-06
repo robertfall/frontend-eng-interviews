@@ -1,78 +1,52 @@
-import React, {
-  useState,
-  useEffect,
-} from "react";
-import TaskFrom from "./TaskForm";
-import Task from "./Task";
-import { USER_ID, BASE_URL } from "./constants";
-import logo from "./logo.svg";
-import "./App.css";
-import { formatDate } from './helpers';
-
-const TASK_URL = `${BASE_URL}user/${USER_ID}/task`;
+import React, { useState, useEffect, useMemo } from "react";
+import { USER_ID } from "./constants";
+import TaskFrom from "./components/TaskForm";
+import Task from "./components/Task";
+import Header from "./components/Header";
+import createClient from "./client";
 
 function App() {
   const [tasks, setTasks] = useState<Tasks>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const client = useMemo(() => createClient({ userId: USER_ID }), []);
 
   useEffect(() => {
-    fetch(TASK_URL)
-      .then(resp => resp.json())
-      .then(tasks => {
-        setTasks(tasks);
-      });
-  }, []);
+    client
+      .fetchTasks()
+      .then(setTasks)
+      .finally(() => setLoading(false));
+  }, [client]);
 
-  const createTask = (task: Task) => {
+  const createTask = async (task: Task) => {
     setLoading(true);
 
-    fetch(TASK_URL, {
-      method: "POST",
-      body: JSON.stringify(task),
-    })
-      .then(resp => resp.json())
-      .then(task => {
-        setTasks([...tasks, task]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const newTask = await client.createTask(task);
+      setTasks([...tasks, newTask]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const markTaskCompleted: Function = (tid: string) => {
+  const markTaskCompleted = async (tid: string) => {
     setLoading(true);
 
-    const completionDate = formatDate(new Date());
-
-    fetch(`${TASK_URL}/${tid}`, {
-      method: "PUT",
-      body: JSON.stringify({ completed: true }),
-    })
-      .then(resp => resp.json())
-      .then(() => {
-        const taskIndex = tasks.findIndex(task => task.tid === tid);
-        const updatedTask: Task = {
-          ...tasks[taskIndex],
-          completed: completionDate,
-        };
-        setTasks([
-          ...tasks.slice(0, taskIndex),
-          updatedTask,
-          ...tasks.slice(taskIndex + 1),
-        ]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      await client.updateTask(tid, { completed: true });
+      const tasks = await client.fetchTasks();
+      setTasks(tasks);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="App">
-      <div>TodoCat</div>
       {loading && <div>Loading...</div>}
+      <Header />
       <TaskFrom onSubmit={createTask} />
       {tasks.map(task => (
-        <Task {...task} onComplete={markTaskCompleted} />
+        <Task key={task.tid} {...task} onComplete={markTaskCompleted} />
       ))}
     </div>
   );
