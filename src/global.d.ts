@@ -2,13 +2,14 @@ export { };
 
 declare global {
   interface Task {
-    tid: string;
+    tid: TaskId;
     description: string;
     due: null | string;
     completed: null | string;
   }
 
   type Tasks = Task[];
+  type TaskId = string;
 
   interface NewTask {
     description: string;

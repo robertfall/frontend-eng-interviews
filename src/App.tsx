@@ -1,12 +1,11 @@
-import React from "react";
-import StoreProvider from "./Store";
+import StoreProvider from "./components/StoreProvider";
 import TasksPage from "./components/TasksPage";
 import Header from "./components/Header";
-import { USER_ID } from "./constants";
+import { TaskClient } from "./services/client";
 
-function App() {
+function App({ client }: { client: TaskClient}) {
   return (
-    <StoreProvider userId={USER_ID}>
+    <StoreProvider client={client}>
       <Header />
       <TasksPage />
     </StoreProvider>

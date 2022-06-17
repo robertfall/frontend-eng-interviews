@@ -2,6 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
+import LoadingMessage from "./LoadingMessage";
 
 const Container = styled.div`
   max-width: 600px;
@@ -14,6 +15,7 @@ const TasksPage = () => {
     <Container>
       <TaskForm />
       <TaskList />
+      <LoadingMessage />
     </Container>
   );
 };

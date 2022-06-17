@@ -1,6 +1,6 @@
 import React, { ChangeEventHandler, useContext } from "react";
 import styled from "@emotion/styled";
-import { StoreContext } from "../Store";
+import { StoreContext } from "./StoreProvider";
 
 const Row = styled.div`
   background-color: #f0f0f0;
@@ -37,10 +37,10 @@ const Description = styled.span<DescriptionProps>`
 type DescriptionProps = { completed: boolean };
 
 const Task = ({ tid, description, completed }: Task) => {
-  const { markTaskCompleted, destroyTask } = useContext(StoreContext) as TaskStore;
+  const store = useContext(StoreContext) as TaskStore;
 
   const handleCheckboxChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    markTaskCompleted(tid, !completed);
+    store.markTaskCompleted(tid, !completed);
   }
 
   return (
@@ -51,7 +51,7 @@ const Task = ({ tid, description, completed }: Task) => {
         <DeleteButton
           type="button"
           value="Remove"
-          onClick={() => destroyTask(tid)}
+          onClick={() => store.destroyTask(tid)}
         />
       )}
     </Row>

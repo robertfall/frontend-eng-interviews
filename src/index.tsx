@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import createClient, { TaskClient} from './services/client';
+import { USER_ID } from './constants';
+
+const client = createClient({ userId: USER_ID});
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App client={client} />
   </React.StrictMode>,
   document.getElementById('root')
 );

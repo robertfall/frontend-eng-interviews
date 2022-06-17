@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import React, { useContext } from "react";
-import { StoreContext } from "../Store";
+import { StoreContext } from "./StoreProvider";
 import Task from "./Task";
 
 const Container = styled.div`

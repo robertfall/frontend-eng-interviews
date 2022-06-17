@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "@emotion/styled";
-import { StoreContext } from "../Store";
+import { StoreContext } from "./StoreProvider";
 
 const Input = styled.input`
   box-sizing: border-box;
@@ -37,16 +37,16 @@ const Form = styled.form`
 
 const TaskForm = () => {
   const [formDescription, setFormDescription] = useState<string>("");
-  const { createTask } = useContext(StoreContext) as TaskStore;
+  const store = useContext(StoreContext) as TaskStore;
 
   const handleFormDescriptionChange: ChangeEventHandler<HTMLInputElement> =
     useCallback(event => {
       setFormDescription(event.target.value);
-    }, []);
+    }, [setFormDescription]);
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = event => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async event => {
     event.preventDefault();
-    createTask({ description: formDescription });
+    await store.createTask({ description: formDescription });
     setFormDescription("");
   };
 
