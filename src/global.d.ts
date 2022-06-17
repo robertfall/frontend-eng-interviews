@@ -23,6 +23,7 @@ declare global {
   interface TaskStore {
     loading: boolean,
     tasks: Tasks,
+    error: string,
     fetchTasks: Function<void>,
     createTask: Function<NewTask, void>,
     markTaskCompleted: Function<string, void>,

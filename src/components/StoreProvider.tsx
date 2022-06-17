@@ -14,6 +14,7 @@ const StoreProvider = ({
 }) => {
   const [tasks, setTasks] = useState<Tasks>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     client
@@ -25,6 +26,7 @@ const StoreProvider = ({
   const store: TaskStore = {
     loading,
     tasks,
+    error,
     async fetchTasks() {
       setLoading(true);
       try {
@@ -42,8 +44,14 @@ const StoreProvider = ({
     async createTask(task: Task) {
       setTasks([...tasks, task]);
       setLoading(true);
-      const newTask = await client.createTask(task);
-      this.fetchTasks();
+
+      try {
+        const newTask = await client.createTask(task);
+        this.fetchTasks();
+      } catch (err) {
+        this.fetchTasks();
+        setError('Failed to create contact.')
+      }
     },
     async markTaskCompleted(tid: string, completed: boolean) {
       const oldTaskIndex = tasks.findIndex(t => t.tid === tid);

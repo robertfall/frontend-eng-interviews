@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { StoreContext } from "./StoreProvider";
+import ErrorMessage from "./ErrorMessage";
 
 const Input = styled.input`
   box-sizing: border-box;
@@ -51,16 +52,20 @@ const TaskForm = () => {
   };
 
   return (
+    <>
     <Form onSubmit={handleSubmit}>
       <Input
         type="text"
         name="description"
         placeholder="Todo Description"
         value={formDescription}
+        data-testid="description-input"
         onChange={handleFormDescriptionChange}
       />
-      <Submit type="submit" value="Add" />
+      <Submit type="submit" value="Add" data-testid="submit-button" />
     </Form>
+    { store.error && <ErrorMessage message={store.error} /> }
+    </>
   );
 };
 

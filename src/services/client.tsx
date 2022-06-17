@@ -2,6 +2,16 @@ import { abort } from "process";
 
 export const BASE_URL = "";
 
+
+class JsonError extends Error {
+  response: object;
+
+  constructor(message: any, response: object) {
+    super(message);
+    this.response = response;
+  }
+}
+
 export interface TaskClient {
   fetchTasks(): Promise<Tasks>;
   createTask(task: Task): Promise<Task>;
@@ -24,10 +34,10 @@ export default function createClient({
 
   function abortFetchTasks() {
     let controller: AbortController | undefined;
-    while(controller = abortControllers.pop()) {
+    while ((controller = abortControllers.pop())) {
       controller.abort();
     }
-  };
+  }
 
   return {
     async fetchTasks() {
@@ -35,13 +45,21 @@ export default function createClient({
       const controller = new AbortController();
       abortControllers.push(controller);
 
-      return fetch(tasksPath(), { signal: controller.signal }).then(resp => resp.json());
+      return fetch(tasksPath(), { signal: controller.signal }).then(resp =>
+        resp.json(),
+      );
     },
     async createTask(task) {
-      return fetch(tasksPath(), {
+      const response = await fetch(tasksPath(), {
         method: "POST",
         body: JSON.stringify(task),
-      }).then(resp => resp.json());
+      });
+
+      if (response.ok) {
+        return response.json();
+      }
+
+      throw new JsonError("Invalid Message", await response.json());
     },
     async updateTask(tid, taskUpdate) {
       await fetch(taskPath(tid), {

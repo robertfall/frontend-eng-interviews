@@ -12,8 +12,8 @@ const TaskList = () => {
   const { tasks } = useContext(StoreContext) as TaskStore;
   return (
     <Container>
-      {tasks.map(task => (
-        <Task key={task.tid} {...task} />
+      {tasks.map((task, i) => (
+        <Task key={i} {...task} />
       ))}
     </Container>
   );

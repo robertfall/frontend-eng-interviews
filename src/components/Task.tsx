@@ -31,7 +31,8 @@ const CompleteCheckbox = styled.input`
 
 const Description = styled.span<DescriptionProps>`
   flex-grow: 1;
-  color: ${props => props.completed ? '#ccc' : 'black' }
+  color: ${props => (props.completed ? "#ccc" : "black")};
+  overflow: hidden;
 `;
 
 type DescriptionProps = { completed: boolean };
@@ -39,14 +40,20 @@ type DescriptionProps = { completed: boolean };
 const Task = ({ tid, description, completed }: Task) => {
   const store = useContext(StoreContext) as TaskStore;
 
-  const handleCheckboxChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const handleCheckboxChange: ChangeEventHandler<HTMLInputElement> = event => {
     store.markTaskCompleted(tid, !completed);
-  }
+  };
 
   return (
     <Row key={tid}>
-      <CompleteCheckbox type="checkbox" checked={!!completed} onChange={handleCheckboxChange}/>
-      <Description completed={!!completed}>{description}</Description>
+      <CompleteCheckbox
+        type="checkbox"
+        checked={!!completed}
+        onChange={handleCheckboxChange}
+      />
+      <Description data-testid="task-description" completed={!!completed}>
+        {description}
+      </Description>
       {!completed && (
         <DeleteButton
           type="button"
