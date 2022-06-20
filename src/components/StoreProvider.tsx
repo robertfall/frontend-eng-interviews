@@ -1,9 +1,39 @@
-import { createContext, useEffect, useMemo, useState } from "react";
-import update from "immutability-helper";
+import { createContext, useEffect, useState } from "react";
 import { formatDate } from "../helpers";
 import { TaskClient } from "../services/client";
 export const StoreContext = createContext<TaskStore | undefined>(undefined);
 StoreContext.displayName = "StateContext";
+
+function generateId(): string {
+  return globalThis.crypto.randomUUID();
+}
+
+function replaceTaskByTid(tid: string, task: TaskCompletion) {
+  return replaceTask({ key: "tid", value: tid, task });
+}
+
+function replaceTaskByClientId(clientId: string, task: Task) {
+  return replaceTask({ key: "clientId", value: clientId, task });
+}
+
+function replaceTask({
+  key,
+  value,
+  task,
+}: {
+  key: keyof Task;
+  value: string;
+  task: Task | TaskCompletion;
+}) {
+  return (tasks: Tasks) => {
+    const oldTaskIndex = tasks.findIndex(t => t[key] === value);
+    return [
+      ...tasks.slice(0, oldTaskIndex),
+      { ...tasks[oldTaskIndex], ...task },
+      ...tasks.slice(oldTaskIndex + 1),
+    ];
+  };
+}
 
 const StoreProvider = ({
   client,
@@ -14,7 +44,7 @@ const StoreProvider = ({
 }) => {
   const [tasks, setTasks] = useState<Tasks>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     client
@@ -42,39 +72,33 @@ const StoreProvider = ({
       }
     },
     async createTask(task: Task) {
-      setTasks([...tasks, task]);
+      const clientId = generateId();
+      setTasks([...tasks, { ...task, clientId }]);
       setLoading(true);
 
       try {
         const newTask = await client.createTask(task);
-        this.fetchTasks();
+        setTasks(replaceTaskByClientId(clientId, newTask));
+        setLoading(false);
       } catch (err) {
-        this.fetchTasks();
-        setError('Failed to create contact.')
+        setError("Failed to create contact.");
       }
     },
     async markTaskCompleted(tid: string, completed: boolean) {
-      const oldTaskIndex = tasks.findIndex(t => t.tid === tid);
-      const updatedTask = {
-        ...tasks[oldTaskIndex],
-        completed: completed ? formatDate(new Date()) : null,
-      };
-      const updatedTasks: Tasks = [
-        ...tasks.slice(0, oldTaskIndex),
-        updatedTask,
-        ...tasks.slice(oldTaskIndex + 1),
-      ];
-
-      setTasks(updatedTasks);
+      setTasks(
+        replaceTaskByTid(tid, {
+          completed: completed ? formatDate(new Date()) : null,
+        }),
+      );
       setLoading(true);
       await client.updateTask(tid, { completed });
-      this.fetchTasks();
+      setLoading(false);
     },
     async destroyTask(tid: string) {
-      setTasks(tasks.filter(task => task.tid !== tid));
       setLoading(true);
+      setTasks(tasks.filter(task => task.tid !== tid));
       await client.destroyTask(tid);
-      this.fetchTasks();
+      setLoading(false);
     },
   };
 

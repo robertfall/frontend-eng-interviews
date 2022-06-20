@@ -1,11 +1,14 @@
 export { };
 
 declare global {
-  interface Task {
+  interface TaskCompletion {
+    completed: null | string
+  }
+  interface Task extends TaskCompletion {
     tid: TaskId;
     description: string;
     due: null | string;
-    completed: null | string;
+    clientId: null | string;
   }
 
   type Tasks = Task[];
@@ -20,13 +23,26 @@ declare global {
     completed: boolean;
   }
 
-  interface TaskStore {
+  interface TaskState {
     loading: boolean,
     tasks: Tasks,
-    error: string,
+    error: null | string,
+  }
+
+  interface TaskStore extends TaskState {
     fetchTasks: Function<void>,
     createTask: Function<NewTask, void>,
     markTaskCompleted: Function<string, void>,
     destroyTask: Function<string, void>
+  }
+
+  type TaskAction = CreateAction;
+
+  interface CreateAction {
+    type: 'CREATE',
+    task: Task
+  }
+  interface Crypto {
+    randomUUID: () => string;
   }
 }

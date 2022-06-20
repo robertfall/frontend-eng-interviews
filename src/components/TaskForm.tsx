@@ -45,10 +45,10 @@ const TaskForm = () => {
       setFormDescription(event.target.value);
     }, [setFormDescription]);
 
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async event => {
+  const handleSubmit: FormEventHandler<HTMLFormElement> = event => {
     event.preventDefault();
-    await store.createTask({ description: formDescription });
     setFormDescription("");
+    store.createTask({ description: formDescription });
   };
 
   return (

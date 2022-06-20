@@ -33,6 +33,8 @@ const Description = styled.span<DescriptionProps>`
   flex-grow: 1;
   color: ${props => (props.completed ? "#ccc" : "black")};
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 type DescriptionProps = { completed: boolean };
